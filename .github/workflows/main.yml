@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Java JDK 17
@@ -16,29 +16,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK & NDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android NDK 25.2
+      - name: Install Android NDK
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
 
-      - name: Fix Mac Path to Linux & Set Permissions
+      - name: Patch Mac Path & Fix Permissions
         run: |
           chmod +x gradlew
           chmod +x build_ffmpeg_android.sh
           sed -i 's/darwin-x86_64/linux-x86_64/g' build_ffmpeg_android.sh
 
-      - name: Build FFmpeg Native Libraries
+      - name: Build FFmpeg
         run: |
           ./build_ffmpeg_android.sh $ANDROID_HOME/ndk/25.2.9519653
 
-      - name: Build APK via Gradle
+      - name: Build Debug APK
         run: |
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Finished APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: untrunc-android-apk
