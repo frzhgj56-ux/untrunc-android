@@ -15,18 +15,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android NDK
-        uses: nsetup/setup-android-ndk@v1
-        with:
-          ndk-version: r27b
+      - name: Install Android NDK
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.9519653"
 
-      - name: Grant execute permission for gradlew and build script
+      - name: Grant execute permission
         run: |
           chmod +x gradlew
           chmod +x build_ffmpeg_android.sh
 
-      - name: Build FFmpeg Libraries
-        run: ./build_ffmpeg_android.sh $ANDROID_NDK_HOME
+      - name: Build FFmpeg
+        run: ./build_ffmpeg_android.sh $ANDROID_HOME/ndk/25.2.9519653
 
       - name: Build APK
         run: ./gradlew assembleDebug
@@ -36,3 +35,4 @@ jobs:
         with:
           name: untrunc-android-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          
